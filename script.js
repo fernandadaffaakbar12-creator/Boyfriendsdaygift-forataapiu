@@ -244,8 +244,8 @@
         const pinPopupMsg = document.getElementById('pin-popup-msg');
         const pinPopupClose = document.getElementById('pin-popup-close');
 
-        // DEFAULT PIN: Silakan ubah angka ini jika ingin PIN lain
-        const SECRET_PIN = "0000";
+        // PIN RAHASIA: 6 digit (270824)
+        const SECRET_PIN = "270824";
 
         let pinAttempt = 0;
         let popupTimeout = null;
@@ -351,7 +351,7 @@
 
         if (pinInput) {
             pinInput.addEventListener('input', function () {
-                if (pinInput.value.length === 4) {
+                if (pinInput.value.length === 6) {
                     // Delay sedikit agar digit terakhir terasa diketik
                     setTimeout(() => {
                         if (pinInput.value === SECRET_PIN) {
@@ -522,7 +522,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 // C. JIKA YANG DIKLIK ADALAH POLAROID
                 else if (this.classList.contains('polaroid')) {
                     modalImg.src = this.querySelector('img').src;
-                    modalImg.style.aspectRatio = "1 / 1";
+                    modalImg.style.aspectRatio = "9 / 16";
+                    const customCaption = this.getAttribute('data-caption');
+                    const cap = this.querySelector('.caption');
+                    const teksCaption = customCaption ? customCaption : (cap ? cap.innerText : '');
+                    if (modalCaption) modalCaption.innerText = teksCaption;
                 }
                 // D. JIKA YANG DIKLIK ADALAH GALERI CINTA
                 else {
@@ -955,309 +959,337 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// FITUR TIUP LILIN 🎂 (Press & Hold)
+// FITUR KEMBANG API MERIAH 🎆 (Boyfriend Day Celebration)
 // ==========================================
-let holdTime = 0;
-let holdInterval = null;
-let holdCurrentStage = 0;
-let holdListenersAttached = false;
-let holdStartFn = null;
-let holdStopFn = null;
+let fireworksAnimationId = null;
+let fireworksInterval = null;
+let fireworksCanvas = null;
+let fireworksCtx = null;
+let fireworksRockets = [];
+let fireworksParticles = [];
+let isFireworksRunning = false;
 
-const STAGE_1_DURATION = 6000;  // 6 detik untuk tahap 1
-const STAGE_2_DURATION = 13000; // 13 detik total (7 detik tambahan) untuk tahap 2
+// Palet warna kembang api yang kaya dan cerah
+const FIREWORK_PALETTES = [
+    // Golden Luxury
+    ['#ffe082', '#ffd54f', '#ffca28', '#ffb300', '#ffffff', '#fff8e1'],
+    // Romantic Rose
+    ['#ff4081', '#f50057', '#ff80ab', '#ffffff', '#ffd700'],
+    // Cosmic Cyan & Purple
+    ['#00e5ff', '#18ffff', '#7c4dff', '#b388ff', '#ffffff'],
+    // Emerald Radiance
+    ['#00e676', '#69f0ae', '#b9f6ca', '#ffff8d', '#ffffff'],
+    // Rainbow Festive
+    ['#ff1744', '#ff9100', '#ffd600', '#00e676', '#00e5ff', '#d500f9', '#ffffff']
+];
 
-function bukaHalamanLilin() {
-    const candlePage = document.getElementById('candle-page');
-    if (!candlePage) return;
-
-    // Reset state
-    holdTime = 0;
-    holdCurrentStage = 0;
-    holdListenersAttached = false;
-
-    // Tampilkan halaman
-    candlePage.classList.add('active');
-
-    // Buat sparkle background
-    buatSparkleBackground(candlePage);
-
-    // Fade in
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            candlePage.classList.add('visible');
-        });
-    });
-}
-
-function tutupHalamanLilin() {
-    const candlePage = document.getElementById('candle-page');
-    const msg = document.getElementById('candle-message');
-    const btn = document.getElementById('btn-mulai-tiup');
-    const tapHint = document.getElementById('tap-hint');
-    const flames = document.querySelectorAll('.candle-flame');
-    const progressBar = document.getElementById('hold-progress-bar');
-    const progressFill = document.getElementById('hold-progress-fill');
-    const cakeContainer = document.querySelector('.cake-container');
-
-    if (!candlePage) return;
-
-    // Stop hold interval
-    if (holdInterval) {
-        clearInterval(holdInterval);
-        holdInterval = null;
+class FireworkRocket {
+    constructor(startX, startY, targetX, targetY, palette, type = 'normal') {
+        this.x = startX;
+        this.y = startY;
+        this.startX = startX;
+        this.startY = startY;
+        this.targetX = targetX;
+        this.targetY = targetY;
+        this.distanceToTarget = Math.hypot(targetX - startX, targetY - startY);
+        this.distanceTraveled = 0;
+        this.coordinates = [];
+        this.coordinateCount = 3;
+        while (this.coordinateCount--) {
+            this.coordinates.push([this.x, this.y]);
+        }
+        this.angle = Math.atan2(targetY - startY, targetX - startX);
+        this.speed = 3.5 + Math.random() * 2.5;
+        this.acceleration = 1.04;
+        this.palette = palette;
+        this.type = type;
+        this.hue = Math.floor(Math.random() * 360);
     }
 
-    // Hapus event listeners
-    hapusHoldListeners(candlePage);
+    update(index) {
+        this.coordinates.pop();
+        this.coordinates.unshift([this.x, this.y]);
 
-    // Fade out
-    candlePage.classList.remove('visible');
+        this.speed *= this.acceleration;
+        const vx = Math.cos(this.angle) * this.speed;
+        const vy = Math.sin(this.angle) * this.speed;
+        this.distanceTraveled = Math.hypot(this.x + vx - this.startX, this.y + vy - this.startY);
+
+        if (this.distanceTraveled >= this.distanceToTarget) {
+            createExplosion(this.targetX, this.targetY, this.palette, this.type);
+            fireworksRockets.splice(index, 1);
+        } else {
+            this.x += vx;
+            this.y += vy;
+        }
+    }
+
+    draw() {
+        if (!fireworksCtx) return;
+        fireworksCtx.beginPath();
+        fireworksCtx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+        fireworksCtx.lineTo(this.x, this.y);
+        fireworksCtx.strokeStyle = 'rgba(255, 224, 130, 0.9)';
+        fireworksCtx.lineWidth = 2.5;
+        fireworksCtx.stroke();
+    }
+}
+
+class FireworkParticle {
+    constructor(x, y, color, vx, vy, size = 2.5, decay = 0.015) {
+        this.x = x;
+        this.y = y;
+        this.coordinates = [];
+        this.coordinateCount = 4;
+        while (this.coordinateCount--) {
+            this.coordinates.push([this.x, this.y]);
+        }
+        this.vx = vx;
+        this.vy = vy;
+        this.friction = 0.95;
+        this.gravity = 0.7;
+        this.color = color;
+        this.alpha = 1;
+        this.decay = decay;
+        this.size = size;
+        this.flicker = Math.random() > 0.5;
+    }
+
+    update(index) {
+        this.coordinates.pop();
+        this.coordinates.unshift([this.x, this.y]);
+
+        this.vx *= this.friction;
+        this.vy *= this.friction;
+        this.vy += this.gravity * 0.08;
+
+        this.x += this.vx;
+        this.y += this.vy;
+        this.alpha -= this.decay;
+
+        if (this.alpha <= this.decay) {
+            fireworksParticles.splice(index, 1);
+        }
+    }
+
+    draw() {
+        if (!fireworksCtx) return;
+        fireworksCtx.save();
+        const displayAlpha = this.flicker && Math.random() < 0.2 ? Math.max(0, this.alpha * 0.4) : Math.max(0, this.alpha);
+        fireworksCtx.globalAlpha = displayAlpha;
+        fireworksCtx.beginPath();
+        fireworksCtx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1]);
+        fireworksCtx.lineTo(this.x, this.y);
+        fireworksCtx.strokeStyle = this.color;
+        fireworksCtx.lineWidth = this.size;
+        fireworksCtx.stroke();
+        fireworksCtx.restore();
+    }
+}
+
+function createExplosion(x, y, palette, type = 'normal') {
+    if (type === 'heart') {
+        const heartCount = 65;
+        for (let i = 0; i < heartCount; i++) {
+            const t = (Math.PI * 2 * i) / heartCount;
+            const hx = 16 * Math.pow(Math.sin(t), 3);
+            const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+            const speed = 0.32 + Math.random() * 0.05;
+            const color = palette[Math.floor(Math.random() * palette.length)];
+            fireworksParticles.push(new FireworkParticle(x, y, color, hx * speed, hy * speed, 2.8, 0.012));
+        }
+        for (let i = 0; i < 20; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const spd = Math.random() * 2;
+            fireworksParticles.push(new FireworkParticle(x, y, '#ffffff', Math.cos(angle) * spd, Math.sin(angle) * spd, 2, 0.02));
+        }
+    } else if (type === 'ring') {
+        const ringCount = 50;
+        const baseSpeed = 4.5 + Math.random() * 2;
+        for (let i = 0; i < ringCount; i++) {
+            const angle = (Math.PI * 2 * i) / ringCount;
+            const color = palette[i % palette.length];
+            fireworksParticles.push(new FireworkParticle(x, y, color, Math.cos(angle) * baseSpeed, Math.sin(angle) * baseSpeed, 2.5, 0.014));
+        }
+    } else {
+        const isWillow = Math.random() < 0.3;
+        const count = 70 + Math.floor(Math.random() * 40);
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.cos(Math.random() * Math.PI / 2) * (isWillow ? 5 : 7.5);
+            const vx = Math.cos(angle) * speed;
+            const vy = Math.sin(angle) * speed;
+            const color = palette[Math.floor(Math.random() * palette.length)];
+            const decay = isWillow ? (0.007 + Math.random() * 0.007) : (0.012 + Math.random() * 0.016);
+            const p = new FireworkParticle(x, y, color, vx, vy, isWillow ? 2 : 2.5, decay);
+            if (isWillow) {
+                p.gravity = 1.2;
+                p.friction = 0.94;
+            }
+            fireworksParticles.push(p);
+        }
+    }
+}
+
+function launchFireworkRocket(targetX = null, targetY = null, type = 'normal') {
+    if (!fireworksCanvas) return;
+    const startX = fireworksCanvas.width * 0.15 + Math.random() * (fireworksCanvas.width * 0.7);
+    const startY = fireworksCanvas.height;
+    const tx = targetX !== null ? targetX : (fireworksCanvas.width * 0.1 + Math.random() * (fireworksCanvas.width * 0.8));
+    const ty = targetY !== null ? targetY : (fireworksCanvas.height * 0.12 + Math.random() * (fireworksCanvas.height * 0.45));
+    const palette = FIREWORK_PALETTES[Math.floor(Math.random() * FIREWORK_PALETTES.length)];
+    fireworksRockets.push(new FireworkRocket(startX, startY, tx, ty, palette, type));
+}
+
+function loopFireworks() {
+    if (!isFireworksRunning || !fireworksCanvas || !fireworksCtx) return;
+    fireworksAnimationId = requestAnimationFrame(loopFireworks);
+
+    // Trail halus menghitam
+    fireworksCtx.globalCompositeOperation = 'destination-out';
+    fireworksCtx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+    fireworksCtx.fillRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+    fireworksCtx.globalCompositeOperation = 'lighter';
+
+    // Render roket
+    for (let i = fireworksRockets.length - 1; i >= 0; i--) {
+        fireworksRockets[i].draw();
+        fireworksRockets[i].update(i);
+    }
+
+    // Render partikel
+    for (let i = fireworksParticles.length - 1; i >= 0; i--) {
+        fireworksParticles[i].draw();
+        fireworksParticles[i].update(i);
+    }
+}
+
+function resizeFireworksCanvas() {
+    if (!fireworksCanvas) return;
+    fireworksCanvas.width = window.innerWidth;
+    fireworksCanvas.height = window.innerHeight;
+}
+
+function onFireworksPageClick(e) {
+    // Abaikan jika klik tombol kembali atau tombol aksi
+    if (e.target.closest('#btn-back-fireworks') || e.target.closest('#btn-launch-mega')) {
+        return;
+    }
+    const rect = fireworksCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const types = ['normal', 'heart', 'ring'];
+    const chosenType = types[Math.floor(Math.random() * types.length)];
+    launchFireworkRocket(x, y, chosenType);
+}
+
+function bukaHalamanKembangApi() {
+    const page = document.getElementById('fireworks-page');
+    fireworksCanvas = document.getElementById('fireworks-canvas');
+    if (!page || !fireworksCanvas) return;
+
+    fireworksCtx = fireworksCanvas.getContext('2d');
+    resizeFireworksCanvas();
+    window.addEventListener('resize', resizeFireworksCanvas);
+
+    // Tampilkan overlay
+    page.classList.add('active');
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            page.classList.add('visible');
+        });
+    });
+
+    isFireworksRunning = true;
+    fireworksRockets = [];
+    fireworksParticles = [];
+
+    // Mulai loop animasi
+    loopFireworks();
+
+    // Luncurkan tembakan pembuka meriah
+    setTimeout(() => {
+        launchFireworkRocket(fireworksCanvas.width * 0.25, fireworksCanvas.height * 0.25, 'heart');
+        launchFireworkRocket(fireworksCanvas.width * 0.75, fireworksCanvas.height * 0.28, 'normal');
+    }, 200);
 
     setTimeout(() => {
-        candlePage.classList.remove('active');
+        launchFireworkRocket(fireworksCanvas.width * 0.5, fireworksCanvas.height * 0.18, 'ring');
+    }, 600);
 
-        // Reset semua state
-        holdTime = 0;
-        holdCurrentStage = 0;
+    setTimeout(() => {
+        launchFireworkRocket(fireworksCanvas.width * 0.35, fireworksCanvas.height * 0.3, 'normal');
+        launchFireworkRocket(fireworksCanvas.width * 0.65, fireworksCanvas.height * 0.22, 'heart');
+        buatConfetti();
+    }, 1000);
 
-        if (msg) {
-            msg.textContent = '';
-            msg.className = 'candle-message';
+    // Peluncur otomatis berkala
+    let counter = 0;
+    if (fireworksInterval) clearInterval(fireworksInterval);
+    fireworksInterval = setInterval(() => {
+        if (!isFireworksRunning) return;
+        counter++;
+        const type = (counter % 3 === 0) ? 'heart' : (counter % 5 === 0 ? 'ring' : 'normal');
+        launchFireworkRocket(null, null, type);
+
+        // Terkadang tembakkan roket ganda
+        if (Math.random() < 0.4) {
+            setTimeout(() => {
+                if (isFireworksRunning) launchFireworkRocket(null, null, 'normal');
+            }, 300);
         }
+    }, 1100);
 
-        if (btn) btn.classList.remove('hidden-btn');
+    // Pasang listener klik di layar
+    page.removeEventListener('click', onFireworksPageClick);
+    page.addEventListener('click', onFireworksPageClick);
+}
 
-        if (tapHint) {
-            tapHint.textContent = '';
-            tapHint.className = 'tap-hint';
+function tutupHalamanKembangApi() {
+    const page = document.getElementById('fireworks-page');
+    if (!page) return;
+
+    isFireworksRunning = false;
+    if (fireworksAnimationId) {
+        cancelAnimationFrame(fireworksAnimationId);
+        fireworksAnimationId = null;
+    }
+    if (fireworksInterval) {
+        clearInterval(fireworksInterval);
+        fireworksInterval = null;
+    }
+
+    window.removeEventListener('resize', resizeFireworksCanvas);
+    page.removeEventListener('click', onFireworksPageClick);
+
+    page.classList.remove('visible');
+    setTimeout(() => {
+        page.classList.remove('active');
+        fireworksRockets = [];
+        fireworksParticles = [];
+        if (fireworksCtx && fireworksCanvas) {
+            fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
         }
-
-        if (progressBar) progressBar.classList.remove('show-bar');
-        if (progressFill) progressFill.style.width = '0%';
-        if (cakeContainer) cakeContainer.classList.remove('holding');
-
-        // Reset api lilin
-        flames.forEach(flame => {
-            flame.classList.remove('dimming', 'extinguished');
-            flame.style.animationDuration = '';
-        });
-
-        // Hapus sparkle elements
-        const sparkles = candlePage.querySelectorAll('.candle-sparkle');
-        sparkles.forEach(s => s.remove());
     }, 800);
 }
 
-function hapusHoldListeners(candlePage) {
-    if (holdListenersAttached && holdStartFn && holdStopFn) {
-        candlePage.removeEventListener('mousedown', holdStartFn);
-        candlePage.removeEventListener('mouseup', holdStopFn);
-        candlePage.removeEventListener('mouseleave', holdStopFn);
-        candlePage.removeEventListener('touchstart', holdStartFn);
-        candlePage.removeEventListener('touchend', holdStopFn);
-        candlePage.removeEventListener('touchcancel', holdStopFn);
-        holdListenersAttached = false;
-    }
-}
+function luncurkanMegaKembangApi(e) {
+    if (e) e.stopPropagation();
+    if (!fireworksCanvas) return;
 
-function buatSparkleBackground(container) {
-    for (let i = 0; i < 30; i++) {
-        const sparkle = document.createElement('div');
-        sparkle.classList.add('candle-sparkle');
-        sparkle.style.left = Math.random() * 100 + '%';
-        sparkle.style.top = Math.random() * 100 + '%';
-        sparkle.style.animationDelay = (Math.random() * 3) + 's';
-        sparkle.style.animationDuration = (1.5 + Math.random() * 2) + 's';
-        container.appendChild(sparkle);
-    }
-}
+    buatConfetti();
 
-function mulaiTiupLilin() {
-    const btn = document.getElementById('btn-mulai-tiup');
-    const tapHint = document.getElementById('tap-hint');
-    const candlePage = document.getElementById('candle-page');
-    const progressBar = document.getElementById('hold-progress-bar');
-
-    if (!btn || !candlePage) return;
-
-    // Sembunyikan tombol
-    btn.classList.add('hidden-btn');
-
-    // Tampilkan progress bar & hint
-    if (progressBar) progressBar.classList.add('show-bar');
-    if (tapHint) {
-        tapHint.textContent = 'Tekan dan tahan layar untuk meniup lilin';
-        tapHint.className = 'tap-hint show-hint';
-    }
-
-    // Reset hold state
-    holdTime = 0;
-    holdCurrentStage = 0;
-
-    // Setup hold event listeners
-    holdStartFn = function (e) {
-        // Jangan proses jika klik tombol kembali
-        if (e.target.closest('.btn-back-candle')) return;
-        // Jangan proses jika sudah selesai
-        if (holdCurrentStage >= 3) return;
-
-        e.preventDefault();
-        startHolding();
-    };
-
-    holdStopFn = function () {
-        if (holdCurrentStage >= 3) return;
-        stopHolding();
-    };
-
-    candlePage.addEventListener('mousedown', holdStartFn);
-    candlePage.addEventListener('mouseup', holdStopFn);
-    candlePage.addEventListener('mouseleave', holdStopFn);
-    candlePage.addEventListener('touchstart', holdStartFn, { passive: false });
-    candlePage.addEventListener('touchend', holdStopFn);
-    candlePage.addEventListener('touchcancel', holdStopFn);
-    holdListenersAttached = true;
-}
-
-function startHolding() {
-    const cakeContainer = document.querySelector('.cake-container');
-    const tapHint = document.getElementById('tap-hint');
-
-    if (cakeContainer) cakeContainer.classList.add('holding');
-    if (tapHint) tapHint.className = 'tap-hint'; // Sembunyikan hint saat menekan
-
-    // Jika belum masuk tahap 1, langsung masuk
-    if (holdCurrentStage === 0) {
-        holdCurrentStage = 1;
-        tampilkanTahap1();
-    }
-
-    // Mulai interval untuk menambah holdTime
-    if (holdInterval) clearInterval(holdInterval);
-    holdInterval = setInterval(() => {
-        holdTime += 50;
-        updateProgress();
-        cekTransisiTahap();
-    }, 50);
-}
-
-function stopHolding() {
-    const cakeContainer = document.querySelector('.cake-container');
-    const tapHint = document.getElementById('tap-hint');
-
-    if (cakeContainer) cakeContainer.classList.remove('holding');
-
-    // Stop interval
-    if (holdInterval) {
-        clearInterval(holdInterval);
-        holdInterval = null;
-    }
-
-    // Tampilkan hint untuk menekan lagi (jika belum selesai)
-    if (holdCurrentStage > 0 && holdCurrentStage < 3 && tapHint) {
-        tapHint.textContent = '🌬️ Tekan dan tahan lagi untuk melanjutkan';
-        tapHint.className = 'tap-hint show-hint';
-    }
-}
-
-function updateProgress() {
-    const progressFill = document.getElementById('hold-progress-fill');
-    if (!progressFill) return;
-
-    const percent = Math.min((holdTime / STAGE_2_DURATION) * 100, 100);
-    progressFill.style.width = percent + '%';
-}
-
-function cekTransisiTahap() {
-    // Transisi dari tahap 1 ke tahap 2
-    if (holdCurrentStage === 1 && holdTime >= STAGE_1_DURATION) {
-        holdCurrentStage = 2;
-        tampilkanTahap2();
-    }
-
-    // Transisi dari tahap 2 ke tahap 3 (selesai)
-    if (holdCurrentStage === 2 && holdTime >= STAGE_2_DURATION) {
-        holdCurrentStage = 3;
-        stopHolding();
-        tampilkanTahap3();
-    }
-}
-
-function tampilkanTahap1() {
-    const msg = document.getElementById('candle-message');
-    const flames = document.querySelectorAll('.candle-flame');
-
-    if (msg) {
-        msg.textContent = 'Lilin mulai ditiup...';
-        msg.className = 'candle-message show-msg';
-    }
-
-    // Api bergoyang lebih kencang tapi belum mati
-    flames.forEach(flame => {
-        flame.style.animationDuration = '0.15s';
-    });
-}
-
-function tampilkanTahap2() {
-    const msg = document.getElementById('candle-message');
-    const flames = document.querySelectorAll('.candle-flame');
-
-    if (msg) {
-        msg.className = 'candle-message'; // fade out dulu
+    // Luncurkan tembakan salvo spektakuler
+    const positions = [0.15, 0.3, 0.45, 0.6, 0.75, 0.9];
+    positions.forEach((pos, idx) => {
         setTimeout(() => {
-            msg.textContent = 'Make a wish, Berdoa dulu yaa.. ';
-            msg.className = 'candle-message show-msg';
-        }, 400);
-    }
-
-    // Api mulai redup
-    flames.forEach(flame => {
-        flame.classList.add('dimming');
+            if (!isFireworksRunning) return;
+            const targetX = fireworksCanvas.width * pos;
+            const targetY = fireworksCanvas.height * (0.15 + (idx % 3) * 0.1);
+            const type = (idx === 2 || idx === 3) ? 'heart' : ((idx === 1 || idx === 4) ? 'ring' : 'normal');
+            launchFireworkRocket(targetX, targetY, type);
+        }, idx * 160);
     });
-}
-
-function tampilkanTahap3() {
-    const msg = document.getElementById('candle-message');
-    const tapHint = document.getElementById('tap-hint');
-    const flames = document.querySelectorAll('.candle-flame');
-    const candlePage = document.getElementById('candle-page');
-    const progressBar = document.getElementById('hold-progress-bar');
-
-    // Sembunyikan hint & progress
-    if (tapHint) {
-        tapHint.textContent = '';
-        tapHint.className = 'tap-hint';
-    }
-    if (progressBar) {
-        setTimeout(() => { progressBar.classList.remove('show-bar'); }, 500);
-    }
-
-    // Fade out pesan sebelumnya
-    if (msg) msg.className = 'candle-message';
-
-    // Matikan api satu per satu
-    flames.forEach((flame, index) => {
-        setTimeout(() => {
-            flame.classList.remove('dimming');
-            flame.classList.add('extinguished');
-        }, index * 400);
-    });
-
-    // Setelah semua api mati
-    setTimeout(() => {
-        buatConfetti();
-
-        setTimeout(() => {
-            if (msg) {
-                msg.textContent = 'Semoga apa yang kamu doakan dan inginkan segera terlaksana yaa, Aamiin 🤍';
-                msg.className = 'candle-message show-msg final-msg';
-            }
-        }, 600);
-    }, flames.length * 400 + 500);
-
-    // Hapus event listeners karena sudah selesai
-    if (candlePage) hapusHoldListeners(candlePage);
 }
 
 function buatConfetti() {

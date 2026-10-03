@@ -1161,49 +1161,48 @@ body {
    FOTO PRIBADI NEON (Slide 5)
 ========================================= */
 .polaroid-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    /* Membuat susunan 2 ke samping */
-    gap: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin: 20px auto 0 auto;
-    /* Memastikan posisinya tepat di tengah */
-    max-width: 450px;
-    /* KUNCI: Membatasi lebar maksimal agar fotonya tidak terlalu besar */
+    max-width: 100%;
 }
 
 .polaroid {
     background: #fffde7;
-    padding: 10px 10px 20px 10px;
+    padding: 12px 12px 20px 12px;
+    border-radius: 8px;
     cursor: pointer;
-    transform: rotate(-2deg);
+    transform: rotate(-1.5deg);
     /* Efek Neon Kuning */
-    box-shadow: 0 0 10px rgba(253, 216, 53, 0.5), 0 0 25px rgba(255, 235, 59, 0.4) !important;
+    box-shadow: 0 0 15px rgba(253, 216, 53, 0.5), 0 0 25px rgba(255, 235, 59, 0.4) !important;
     animation: float-polaroid 5s ease-in-out infinite;
-}
-
-.polaroid:nth-child(even) {
-    transform: rotate(3deg);
-    animation: float-polaroid-alt 6s ease-in-out infinite;
+    max-width: 280px;
+    width: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
 }
 
 .polaroid img {
     width: 100%;
-    aspect-ratio: 1/1;
+    aspect-ratio: 9 / 16;
     object-fit: cover;
+    border-radius: 4px;
+    display: block;
 }
 
 .polaroid .caption {
     color: #5a4500;
     font-family: 'Caveat', cursive;
-    font-size: 1.5rem;
-    margin-top: 10px;
+    font-size: 1.6rem;
+    margin-top: 12px;
     margin-bottom: 0;
+    text-align: center;
 }
 
 .polaroid:hover {
     /* Efek Neon Kuning saat disorot */
-    box-shadow: 0 0 15px #fdd835, 0 0 35px rgba(253, 216, 53, 0.6) !important;
-    filter: brightness(1.1);
+    box-shadow: 0 0 20px #fdd835, 0 0 40px rgba(253, 216, 53, 0.7) !important;
+    filter: brightness(1.05);
 }
 
 /* =========================================
@@ -1480,19 +1479,21 @@ body {
     }
 
     .polaroid-grid {
-        grid-template-columns: repeat(2, 1fr);
-        /* Memaksa agar tetap 2 ke samping di HP */
-        gap: 10px;
-        /* Jarak antar foto sedikit dirapatkan */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 15px auto 0 auto;
+        max-width: 100%;
     }
 
     .polaroid {
-        padding: 8px 8px 15px 8px;
+        max-width: 240px;
+        padding: 10px 10px 16px 10px;
         /* Bingkai putih polaroid sedikit dikecilkan */
     }
 
     .polaroid .caption {
-        font-size: 1.1rem;
+        font-size: 1.3rem;
         /* Ukuran tulisan di bawah foto dikecilkan agar muat dan rapi */
     }
 
@@ -1662,8 +1663,9 @@ body {
 }
 
 #pin-input {
-    width: 80%;
-    padding: 12px;
+    width: 85%;
+    max-width: 260px;
+    padding: 12px 8px;
     font-size: 1.5rem;
     text-align: center;
     border-radius: 10px;
@@ -1671,7 +1673,8 @@ body {
     outline: none;
     background: rgba(230, 168, 0, 0.15);
     color: #5a4500;
-    letter-spacing: 15px;
+    letter-spacing: 10px;
+    text-indent: 10px;
     margin-bottom: 20px;
     transition: all 0.3s ease;
 }
@@ -1898,57 +1901,65 @@ body {
 }
 
 /* =========================================
-   TOMBOL TIUP LILIN
+   TOMBOL KEMBANG API
 ========================================= */
-.btn-tiup-lilin {
+.btn-fireworks {
     display: inline-block;
     margin-top: 30px;
-    padding: 14px 36px;
+    padding: 14px 38px;
     font-family: 'Caveat', cursive;
-    font-size: 1.5rem;
-    color: #5a4500;
-    background: linear-gradient(135deg, #fdd835, #f9a825, #f57f17);
-    border: 2px solid rgba(230, 168, 0, 0.4);
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #4a3300;
+    background: linear-gradient(135deg, #ffe082 0%, #ffd54f 30%, #ffca28 70%, #ffb300 100%);
+    border: 2px solid rgba(255, 215, 64, 0.7);
     border-radius: 50px;
     cursor: pointer;
-    transition: all 0.4s ease;
-    box-shadow: 0 4px 20px rgba(253, 216, 53, 0.4), 0 0 30px rgba(253, 216, 53, 0.15);
-    animation: candleBtnPulse 2.5s ease-in-out infinite;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 20px rgba(253, 216, 53, 0.5), 0 0 35px rgba(255, 193, 7, 0.3);
+    animation: fireworksBtnPulse 2.5s ease-in-out infinite;
     position: relative;
     overflow: hidden;
 }
 
-.btn-tiup-lilin::before {
+.btn-fireworks::before {
     content: '';
     position: absolute;
     top: -50%;
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.35), transparent);
     transform: rotate(45deg);
-    animation: shimmerBtn 3s ease-in-out infinite;
+    animation: shimmerFireworksBtn 3s ease-in-out infinite;
 }
 
-.btn-tiup-lilin:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 30px rgba(253, 216, 53, 0.6), 0 0 50px rgba(253, 216, 53, 0.25);
+.btn-fireworks:hover {
+    transform: translateY(-4px) scale(1.06);
+    box-shadow: 0 8px 30px rgba(253, 216, 53, 0.7), 0 0 50px rgba(255, 179, 0, 0.4);
+    filter: brightness(1.1);
 }
 
-@keyframes candleBtnPulse {
-    0%, 100% { box-shadow: 0 4px 20px rgba(253, 216, 53, 0.4), 0 0 30px rgba(253, 216, 53, 0.15); }
-    50% { box-shadow: 0 4px 30px rgba(253, 216, 53, 0.6), 0 0 50px rgba(253, 216, 53, 0.3); }
+@keyframes fireworksBtnPulse {
+    0%, 100% { 
+        box-shadow: 0 4px 20px rgba(253, 216, 53, 0.5), 0 0 30px rgba(255, 193, 7, 0.25);
+        transform: scale(1);
+    }
+    50% { 
+        box-shadow: 0 6px 30px rgba(253, 216, 53, 0.75), 0 0 50px rgba(255, 179, 0, 0.45);
+        transform: scale(1.02);
+    }
 }
 
-@keyframes shimmerBtn {
+@keyframes shimmerFireworksBtn {
     0% { transform: translateX(-100%) rotate(45deg); }
     100% { transform: translateX(100%) rotate(45deg); }
 }
 
 /* =========================================
-   HALAMAN TIUP LILIN (FULL SCREEN OVERLAY)
+   HALAMAN KEMBANG API (FULL SCREEN OVERLAY)
 ========================================= */
-.candle-page {
+.fireworks-page {
     display: none;
     position: fixed;
     top: 0;
@@ -1956,20 +1967,29 @@ body {
     width: 100%;
     height: 100%;
     z-index: 99990;
-    background: radial-gradient(ellipse at center bottom, #301b00 0%, #1a0e00 40%, #0a0500 80%, #000000 100%);
+    background: radial-gradient(ellipse at center bottom, #261502 0%, #150a00 45%, #080300 80%, #000000 100%);
     opacity: 0;
     transition: opacity 0.8s ease;
-    overflow-y: auto;
+    overflow: hidden;
+    touch-action: manipulation;
 }
 
-.candle-page.active {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.fireworks-page.active {
+    display: block;
 }
 
-.candle-page.visible {
+.fireworks-page.visible {
     opacity: 1;
+}
+
+#fireworks-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    display: block;
 }
 
 /* Astronaut Background Effect */
@@ -2031,390 +2051,170 @@ body {
     }
 }
 
-.candle-page-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100%;
-    padding: 40px 20px;
-    padding-top: 60px;
-    text-align: center;
-}
-
-/* Pesan di atas kue */
-.candle-message {
-    font-family: 'Caveat', cursive;
-    font-size: 1.6rem;
-    color: #fdd835;
-    text-shadow: 0 0 15px rgba(253, 216, 53, 0.5);
-    margin-bottom: 30px;
-    min-height: 60px;
-    opacity: 0;
-    transform: translateY(-15px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-    line-height: 1.4;
-    max-width: 340px;
-}
-
-.candle-message.show-msg {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* =========================================
-   BIRTHDAY CAKE (CSS Art)
-========================================= */
-.cake-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    margin-top: 40px;
-}
-
-.candles-row {
-    display: flex;
-    gap: 28px;
-    justify-content: center;
-    align-items: flex-end;
-    margin-bottom: -2px;
-    z-index: 2;
-    position: relative;
-}
-
-.candles-row.number-candles {
-    gap: 6px;
-    margin-bottom: -5px;
-}
-
-.candle-stick {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.candle-body {
-    width: 12px;
-    height: 50px;
-    background: linear-gradient(180deg, #ff9ecf, #e876a8);
-    border-radius: 2px 2px 0 0;
-    position: relative;
-    box-shadow: inset -2px 0 4px rgba(0,0,0,0.15);
-}
-
-.candle-body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 8px;
-    background: #333;
-    border-radius: 1px;
-}
-
-/* =========================================
-   LILIN BERBENTUK ANGKA (Number-Shaped Candles)
-   Angka itu sendiri adalah badan lilin
-========================================= */
-.candle-number-body {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Sumbu lilin (wick) di atas angka */
-.candle-number-body::before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2.5px;
-    height: 10px;
-    background: linear-gradient(180deg, #555, #222);
-    border-radius: 1px;
-    z-index: 4;
-}
-
-.candle-digit {
+/* Tombol Kembali Halaman Kembang Api */
+.btn-back-fireworks {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    z-index: 99996;
+    padding: 10px 22px;
     font-family: 'Outfit', sans-serif;
-    font-size: 4.5rem;
-    font-weight: 900;
-    line-height: 1;
-    position: relative;
-    z-index: 1;
-    /* Wax gradient effect */
-    background: linear-gradient(
-        180deg,
-        #ffcce0 0%,
-        #ffb6d3 15%,
-        #ff9ecf 30%,
-        #e876a8 55%,
-        #d65d8c 75%,
-        #c44e7d 100%
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    /* 3D wax-like depth with paint-order trick */
-    paint-order: stroke fill;
-    -webkit-text-stroke: 3px rgba(200, 80, 130, 0.5);
-    filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.35))
-            drop-shadow(-1px 0px 1px rgba(255,255,255,0.15))
-            drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(26, 14, 0, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 215, 64, 0.4);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-
-
-/* Efek glow di sekitar lilin angka */
-.number-candle {
-    filter: drop-shadow(0 0 12px rgba(255, 160, 200, 0.35));
-}
-
-/* Highlight sinar di atas angka */
-.candle-digit::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 10%;
-    width: 80%;
-    height: 30%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 3;
-}
-
-/* API LILIN (FLAME) */
-.candle-flame {
-    width: 14px;
-    height: 28px;
-    position: relative;
-    margin-bottom: -3px;
-    z-index: 3;
-    transition: opacity 1.5s ease, transform 1.5s ease;
-}
-
-/* Api lebih besar untuk lilin angka */
-.number-candle .candle-flame {
-    width: 18px;
-    height: 34px;
-    margin-bottom: -10px;
-}
-
-.candle-flame::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 14px;
-    height: 28px;
-    background: radial-gradient(ellipse at bottom, #ffd700, #ff8c00 40%, #ff4500 70%, transparent 100%);
-    border-radius: 50% 50% 30% 30%;
-    animation: flicker 0.3s ease-in-out infinite alternate;
-    box-shadow: 0 0 12px 4px rgba(255, 165, 0, 0.5), 0 0 30px 8px rgba(255, 100, 0, 0.2);
-}
-
-.candle-flame .flame-inner {
-    position: absolute;
-    bottom: 2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 6px;
-    height: 14px;
-    background: radial-gradient(ellipse at bottom, #ffffee, #ffec8b 60%, transparent 100%);
-    border-radius: 50% 50% 30% 30%;
-    animation: flickerInner 0.25s ease-in-out infinite alternate;
-    z-index: 1;
-}
-
-/* Delay berbeda untuk setiap api lilin */
-.flame-1::before { animation-delay: 0s; }
-.flame-2::before { animation-delay: 0.1s; }
-.flame-3::before { animation-delay: 0.2s; }
-
-/* State: api redup */
-.candle-flame.dimming {
-    filter: brightness(0.5);
-    transform: scale(0.7);
-}
-
-.candle-flame.dimming::before {
-    box-shadow: 0 0 6px 2px rgba(255, 165, 0, 0.25), 0 0 15px 4px rgba(255, 100, 0, 0.1);
-}
-
-/* State: api mati */
-.candle-flame.extinguished {
-    opacity: 0;
-    transform: scale(0) translateY(-10px);
-}
-
-/* Asap setelah api mati */
-.candle-flame.extinguished::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
-    height: 20px;
-    background: linear-gradient(to top, rgba(180, 180, 180, 0.4), transparent);
-    border-radius: 50%;
-    animation: smokeRise 2s ease-out forwards;
-}
-
-@keyframes flicker {
-    0% { transform: translateX(-50%) scaleY(1) scaleX(1) rotate(-2deg); }
-    50% { transform: translateX(-50%) scaleY(1.1) scaleX(0.95) rotate(1deg); }
-    100% { transform: translateX(-50%) scaleY(0.95) scaleX(1.05) rotate(-1deg); }
-}
-
-@keyframes flickerInner {
-    0% { transform: translateX(-50%) scaleY(1); }
-    100% { transform: translateX(-50%) scaleY(1.15) scaleX(0.9); }
-}
-
-@keyframes smokeRise {
-    0% { opacity: 0.5; transform: translateX(-50%) translateY(0); }
-    100% { opacity: 0; transform: translateX(-50%) translateY(-30px); }
-}
-
-/* KUE */
-.cake {
-    position: relative;
-    width: 200px;
-}
-
-/* Kue bertema kuning */
-.cake-top {
-    width: 200px;
-    height: 18px;
-    background: linear-gradient(180deg, #fdd835, #f9a825);
-    border-radius: 8px 8px 0 0;
-    position: relative;
-    z-index: 1;
-    box-shadow: 0 -2px 8px rgba(253, 216, 53, 0.3);
-}
-
-.cake-middle {
-    width: 200px;
-    height: 55px;
-    background: linear-gradient(180deg, #fff9c4, #fff176);
-    position: relative;
-    border-left: 3px solid rgba(255,255,255,0.1);
-    border-right: 3px solid rgba(0,0,0,0.05);
-}
-
-.cake-bottom {
-    width: 200px;
-    height: 55px;
-    background: linear-gradient(180deg, #fdd835, #f9a825);
-    border-radius: 0 0 8px 8px;
-    position: relative;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    border-left: 3px solid rgba(255,255,255,0.1);
-    border-right: 3px solid rgba(0,0,0,0.05);
-}
-
-/* Frosting drips */
-.cake-frosting {
-    position: absolute;
-    top: 15px;
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    z-index: 2;
-}
-
-.cake-frosting span {
-    display: block;
-    width: 16px;
-    height: 22px;
-    background: linear-gradient(180deg, #ffee58, #fdd835);
-    border-radius: 0 0 50% 50%;
-    animation: frostDrip 3s ease-in-out infinite alternate;
-}
-
-.cake-frosting span:nth-child(even) {
-    height: 28px;
-    animation-delay: 0.5s;
-}
-
-@keyframes frostDrip {
-    0% { transform: scaleY(1); }
-    100% { transform: scaleY(1.15); }
-}
-
-/* Dekorasi */
-.cake-decoration {
-    position: absolute;
-    bottom: 60px;
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    padding: 0 10px;
-    font-size: 0.8rem;
-}
-
-/* Glow di sekitar kue */
-.cake-container::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 250px;
-    height: 60px;
-    background: radial-gradient(ellipse, rgba(253, 216, 53, 0.2), transparent 70%);
-    border-radius: 50%;
-    z-index: 0;
-}
-
-/* =========================================
-   TOMBOL MULAI TIUP LILIN
-========================================= */
-.btn-mulai-tiup {
-    display: inline-block;
-    margin-top: 40px;
-    padding: 14px 36px;
-    font-family: 'Caveat', cursive;
-    font-size: 1.4rem;
+.btn-back-fireworks:hover {
+    background: rgba(255, 215, 64, 0.25);
     color: #fff;
-    background: linear-gradient(135deg, #fdd835, #f9a825, #f57f17);
-    border: 2px solid rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+    border-color: rgba(255, 215, 64, 0.7);
+}
+
+/* Konten Ucapan Kembang Api */
+.fireworks-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px 28px;
+    width: 90%;
+    max-width: 520px;
+    background: rgba(24, 13, 0, 0.55);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1.5px solid rgba(255, 215, 64, 0.4);
+    border-radius: 28px;
+    box-shadow: 0 12px 45px rgba(0, 0, 0, 0.65), 0 0 50px rgba(255, 193, 7, 0.22);
+    pointer-events: auto;
+    animation: fireworksContentFade 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes fireworksContentFade {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -42%) scale(0.92);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.fireworks-badge {
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ffe082;
+    background: rgba(255, 193, 7, 0.2);
+    padding: 6px 18px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 215, 64, 0.35);
+    margin-bottom: 12px;
+}
+
+.fireworks-title {
+    font-family: 'Caveat', cursive;
+    font-size: 3.2rem;
+    color: #fff9c4;
+    text-shadow: 0 0 15px rgba(255, 215, 64, 0.8), 0 0 35px rgba(255, 179, 0, 0.5);
+    line-height: 1.1;
+    margin-bottom: 5px;
+}
+
+.fireworks-subtitle {
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    color: #ffe082;
+    text-shadow: 0 0 12px rgba(255, 224, 130, 0.6);
+    margin-bottom: 16px;
+}
+
+.fireworks-message {
+    font-size: 1rem;
+    color: #fffde7;
+    line-height: 1.6;
+    margin-bottom: 22px;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    opacity: 0.95;
+}
+
+.fireworks-action-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.btn-launch-mega {
+    padding: 12px 28px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #4a3300;
+    background: linear-gradient(135deg, #ffd54f, #ffb300);
+    border: none;
     border-radius: 50px;
     cursor: pointer;
-    transition: all 0.4s ease;
-    box-shadow: 0 4px 20px rgba(253, 216, 53, 0.4);
-    animation: tiupBtnGlow 2s ease-in-out infinite;
+    box-shadow: 0 4px 20px rgba(255, 179, 0, 0.45);
+    transition: all 0.3s ease;
 }
 
-.btn-mulai-tiup:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 8px 30px rgba(253, 216, 53, 0.6);
+.btn-launch-mega:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 28px rgba(255, 193, 7, 0.7);
+    filter: brightness(1.1);
 }
 
-.btn-mulai-tiup.hidden-btn {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(10px);
-    transition: all 0.5s ease;
+.btn-launch-mega:active {
+    transform: scale(0.97);
 }
 
-@keyframes tiupBtnGlow {
-    0%, 100% { box-shadow: 0 4px 20px rgba(253, 216, 53, 0.4); }
-    50% { box-shadow: 0 4px 30px rgba(253, 216, 53, 0.7), 0 0 40px rgba(249, 168, 37, 0.2); }
+.fireworks-hint {
+    font-size: 0.8rem;
+    color: rgba(255, 249, 196, 0.75);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+}
+
+@media (max-width: 600px) {
+    .fireworks-content {
+        padding: 24px 18px;
+        width: 92%;
+    }
+    .fireworks-title {
+        font-size: 2.3rem;
+    }
+    .fireworks-subtitle {
+        font-size: 1.5rem;
+    }
+    .fireworks-message {
+        font-size: 0.88rem;
+        margin-bottom: 16px;
+    }
+    .btn-back-fireworks {
+        top: 15px;
+        left: 15px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
 }
 
 /* =========================================
-   CONFETTI BURST (setelah lilin mati) — LEBIH MERIAH
+   CONFETTI BURST (Perayaan Kembang Api)
 ========================================= */
 .confetti-piece {
     position: fixed;
@@ -2525,123 +2325,9 @@ body {
     }
 }
 
-/* Pesan akhir yang spesial */
-.candle-message.final-msg {
-    font-size: 1.3rem;
-    color: #ffffff;
-    text-shadow: 0 0 20px rgba(253, 216, 53, 0.6), 0 0 40px rgba(253, 216, 53, 0.3);
-    max-width: 320px;
-    line-height: 1.6;
-}
-
 /* =========================================
-   CANDLE PAGE BACKGROUND SPARKLES
+   CONFETTI & PERAYAAN KEMBANG API SELESAI
 ========================================= */
-.candle-page .candle-sparkle {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 50%;
-    animation: candleSparkle 2s ease-in-out infinite;
-}
-
-@keyframes candleSparkle {
-    0%, 100% { opacity: 0.2; transform: scale(0.5); }
-    50% { opacity: 1; transform: scale(1.2); }
-}
-
-/* =========================================
-   TOMBOL KEMBALI (CANDLE PAGE)
-========================================= */
-.btn-back-candle {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 99995;
-    padding: 10px 20px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.8);
-    background: rgba(253, 216, 53, 0.15);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(253, 216, 53, 0.3);
-    border-radius: 30px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-back-candle:hover {
-    background: rgba(253, 216, 53, 0.25);
-    color: #fff;
-    transform: translateX(-50%) scale(1.05);
-    border-color: rgba(253, 216, 53, 0.5);
-}
-
-/* =========================================
-   TAP HINT (Ketuk layar untuk lanjut)
-========================================= */
-.tap-hint {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.5);
-    margin-top: 15px;
-    margin-bottom: 60px;
-    min-height: 20px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-.tap-hint.show-hint {
-    opacity: 1;
-    animation: tapPulse 2s ease-in-out infinite;
-}
-
-@keyframes tapPulse {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 0.8; }
-}
-
-/* =========================================
-   HOLD PROGRESS BAR
-========================================= */
-.hold-progress-bar {
-    width: 200px;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-    margin-top: 20px;
-    overflow: hidden;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
-
-.hold-progress-bar.show-bar {
-    opacity: 1;
-}
-
-.hold-progress-fill {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(90deg, #fdd835, #f9a825, #f57f17);
-    border-radius: 3px;
-    transition: width 0.05s linear;
-    box-shadow: 0 0 8px rgba(253, 216, 53, 0.6);
-}
-
-/* Visual feedback saat menekan kue */
-.cake-container.holding {
-    transform: scale(0.97);
-    transition: transform 0.2s ease;
-}
-
-.cake-container:not(.holding) {
-    transform: scale(1);
-    transition: transform 0.3s ease;
-}
 
 /* =========================================
    LIQUID Glass Effect
